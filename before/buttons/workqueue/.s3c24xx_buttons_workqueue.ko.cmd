@@ -1,0 +1,1 @@
+cmd_/work/driver/buttons/workqueue/s3c24xx_buttons_workqueue.ko := arm-linux-ld -EL  -r -o /work/driver/buttons/workqueue/s3c24xx_buttons_workqueue.ko /work/driver/buttons/workqueue/s3c24xx_buttons_workqueue.o /work/driver/buttons/workqueue/s3c24xx_buttons_workqueue.mod.o

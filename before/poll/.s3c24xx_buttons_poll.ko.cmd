@@ -1,0 +1,1 @@
+cmd_/work/driver/poll/s3c24xx_buttons_poll.ko := arm-linux-ld -EL  -r -o /work/driver/poll/s3c24xx_buttons_poll.ko /work/driver/poll/s3c24xx_buttons_poll.o /work/driver/poll/s3c24xx_buttons_poll.mod.o
