@@ -1,0 +1,1 @@
+cmd_/work/driver/lock/s3c24xx_buttons_spinlock.ko := arm-linux-ld -EL  -r -o /work/driver/lock/s3c24xx_buttons_spinlock.ko /work/driver/lock/s3c24xx_buttons_spinlock.o /work/driver/lock/s3c24xx_buttons_spinlock.mod.o

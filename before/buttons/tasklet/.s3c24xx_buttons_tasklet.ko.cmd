@@ -1,0 +1,1 @@
+cmd_/work/driver/buttons/tasklet/s3c24xx_buttons_tasklet.ko := arm-linux-ld -EL  -r -o /work/driver/buttons/tasklet/s3c24xx_buttons_tasklet.ko /work/driver/buttons/tasklet/s3c24xx_buttons_tasklet.o /work/driver/buttons/tasklet/s3c24xx_buttons_tasklet.mod.o
