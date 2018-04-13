@@ -1,1 +1,0 @@
-cmd_/work/driver/signal/s3c24xx_buttons_signal.ko := arm-linux-ld -EL  -r -o /work/driver/signal/s3c24xx_buttons_signal.ko /work/driver/signal/s3c24xx_buttons_signal.o /work/driver/signal/s3c24xx_buttons_signal.mod.o
