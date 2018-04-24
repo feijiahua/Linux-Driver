@@ -89,7 +89,7 @@ static int s3c_nand_init(void)
 	/* 1、分配一个nand_chip结构体 */
 	s3c_nand = kzalloc(sizeof(struct nand_chip), GFP_KERNEL);
 
-	s3c_nand_regs = ioremap(0x4E000000, sizeof(struct s3c_nand_regs))
+	s3c_nand_regs = ioremap(0x4E000000, sizeof(struct s3c_nand_regs));
 	
 	/* 2、设置nand_chip */
 	/* 设置nand_chip是给nand_scan函数用的。如何设置，先看nand_scan怎么用
