@@ -26,18 +26,40 @@
 #include <asm/arch/regs-nand.h>
 #include <asm/arch/nand.h>
 
+struct s3c_nand_regs{
+	unsigned long nfconf;
+	unsigned long nfcont;
+	unsigned long nfcmd;
+	unsigned long nfaddr;
+	unsigned long nfdata;
+	unsigned long nfeccd0;
+	unsigned long nfeccd1;
+	unsigned long nfeccd;
+	unsigned long nfstat;
+	unsigned long nfestat0;
+	unsigned long nfestat1;
+	unsigned long nfmecc0;
+	unsigned long nfmecc1;
+	unsigned long nfsecc;
+	unsigned long nfsblk;
+	unsigned long nfeblk;
+};
+
 static struct nand_chip *s3c_nand;
 static struct mtd_info *s3c_mtd;
+static struct s3c_nand_regs *s3c_nand_regs;
 
 static void s3c2440_select_chip(struct mtd_info *mtd, int chipnr)
 {
 	if (chipnr == -1)
 	{
 		/* 取消选中:NFCONT[1] = 0 */
+		s3c_nand_regs->nfcont &=~ (1 << 1);
 	}
 	else
 	{
 		/* 选中: NFCONT[1] = 1 */
+		s3c_nand_regs->nfcont |= (1 << 1);
 	}
 }
 
@@ -46,35 +68,59 @@ static void s3c2440_cmd_ctrl(struct mtd_info *mtd, int dat, unsigned int ctrl)
 	 if (ctrl & NAND_CLE)
 	 {
 	 	/* 发命令:NFCOMD=dat */
-		writeb(cmd, host->io_base + (1 << host->board->cle));
+		s3c_nand_regs->nfcmd = dat;
 	 }
 	 else
 	 {
 	 	/* 发地址:NFADDR=dat */
-		writeb(cmd, host->io_base + (1 << host->board->ale));
+		s3c_nand_regs->nfaddr = dat;
 	 }
 }
 
 static int s3c2440_dev_ready(struct mtd_info *mtd)
 {
-	return "NFSTAT的BIT[0]"
+	return s3c_nand_regs->nfstat & (1 << 0);
 }
 
 static int s3c_nand_init(void)
 {
+	struct clk *clk;
+	
 	/* 1、分配一个nand_chip结构体 */
 	s3c_nand = kzalloc(sizeof(struct nand_chip), GFP_KERNEL);
+
+	s3c_nand_regs = ioremap(0x4E000000, sizeof(struct s3c_nand_regs))
 	
 	/* 2、设置nand_chip */
 	/* 设置nand_chip是给nand_scan函数用的。如何设置，先看nand_scan怎么用
 	 * nand_chip应该提供:选中，发命令，发地址，发数据，读数据，判断状态的功能
 	 */
-	s3c_nand->select_chip  = s3c2440_select_chip;
+	s3c_nand->select_chip  = s3c2440_select_chip; 
 	s3c_nand->cmd_ctrl	   = s3c2440_cmd_ctrl;
-	s3c_nand->IO_ADDR_R    = "NFDATA的虚拟地址";
-	s3c_nand->IO_ADDR_W    = "NFDATA的虚拟地址";
+	s3c_nand->IO_ADDR_R    = s3c_nand_regs->nfdata;
+	s3c_nand->IO_ADDR_W    = s3c_nand_regs->nfdata;
 	s3c_nand->dev_ready    = s3c2440_dev_ready;
-	/* 3、硬件相关的设置 */
+	
+	/* 3、硬件相关的设置:根据NAND FLASH手册，设置时间参数 */
+	/* 使能NAND FLASH控制器的时钟 */
+	clk = clk_get(NULL. "nand");
+	clk_enable(clk);
+	
+	/* HCLK = 100MHZ 
+	 * TACLS:发出CLE/CLE之后，多长时间才发出nWE信号，从NAND手册可知CLE/ALE与nWE信号可以同时发出，所以TACLS=0
+     * TWRPH0:nWE的脉冲宽度，TWRPH0=1
+     * TWRPH1:nWE信号变为高电平后，多长时间后CLE/ALE才能变为高电平，TWRPH0=0
+	 */
+#define  TACLS  0
+#define  TWRPH0 1
+#define  TWRPH1 0
+	s3c_nand_regs->nfconf = (TACLS << 12) | (TWRPH0 << 8) | (TWRPH1 << 4);
+	/* NFCONT
+	 * BIT-1设为1，取消片选
+	 * BIT-0设为1，使能NAND FLASH控制器
+	 */
+	s3c_nand_regs->nfcont = (3 << 0);
+	
 	/* 4、使用: nand_scan 
 	 *			add_mtd_partitions
 	 */
@@ -89,7 +135,9 @@ static int s3c_nand_init(void)
 
 static void s3c_nand_exit(void)
 {
-	
+	kfree(s3c_mtd);
+	iounmap(s3c_nand_regs);
+	kfree(s3c_nand);
 }
 
 module_init(s3c_nand_init);
