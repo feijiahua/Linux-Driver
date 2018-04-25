@@ -103,7 +103,7 @@ static int s3c_nand_init(void)
 	
 	/* 3、硬件相关的设置:根据NAND FLASH手册，设置时间参数 */
 	/* 使能NAND FLASH控制器的时钟 */
-	clk = clk_get(NULL. "nand");
+	clk = clk_get(NULL, "nand");
 	clk_enable(clk);
 	
 	/* HCLK = 100MHZ 
