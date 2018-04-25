@@ -49,6 +49,29 @@ static struct nand_chip *s3c_nand;
 static struct mtd_info *s3c_mtd;
 static struct s3c_nand_regs *s3c_nand_regs;
 
+static struct mtd_partition s3c_nand_part[] = {
+	[0] = {
+        .name   = "bootloader",
+        .size   = 0x00040000,
+		.offset	= 0,
+	},
+	[1] = {
+        .name   = "params",
+        .offset = MTDPART_OFS_APPEND,
+        .size   = 0x00020000,
+	},
+	[2] = {
+        .name   = "kernel",
+        .offset = MTDPART_OFS_APPEND,
+        .size   = 0x00200000,
+	},
+	[3] = {
+        .name   = "root",
+        .offset = MTDPART_OFS_APPEND,
+        .size   = MTDPART_SIZ_FULL,
+	}
+};
+
 static void s3c2440_select_chip(struct mtd_info *mtd, int chipnr)
 {
 	if (chipnr == -1)
@@ -130,12 +153,16 @@ static int s3c_nand_init(void)
 	s3c_mtd->priv = s3c_nand;
 	
 	nand_scan(s3c_mtd, 1);/* 识别NAND FLASH，构造mtd_info */
+	add_mtd_partitions(s3c_mtd, s3c_nand_part, 4);
+	/* 整个flash当做一个分区用add_mtd_device()函数 */
+	//add_mtd_device(s3c_mtd);
 	
 	return 0;
 }
 
 static void s3c_nand_exit(void)
 {
+	del_mtd_partitions(s3c_mtd);
 	kfree(s3c_mtd);
 	iounmap(s3c_nand_regs);
 	kfree(s3c_nand);
