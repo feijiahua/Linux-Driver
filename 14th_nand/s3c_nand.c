@@ -125,8 +125,8 @@ static int s3c_nand_init(void)
 	 *			add_mtd_partitions
 	 */
 	s3c_mtd = kzalloc(sizeof(struct mtd_info), GFP_KERNEL);
-	s3c_mtd.owner = THIS_MODULE;
-	s3c_mtd.priv = s3c_nand;
+	s3c_mtd->owner = THIS_MODULE;
+	s3c_mtd->priv = s3c_nand;
 	
 	nand_scan(s3c_mtd, 1);/* 识别NAND FLASH，构造mtd_info */
 	
