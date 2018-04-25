@@ -100,6 +100,7 @@ static int s3c_nand_init(void)
 	s3c_nand->IO_ADDR_R    = s3c_nand_regs->nfdata;
 	s3c_nand->IO_ADDR_W    = s3c_nand_regs->nfdata;
 	s3c_nand->dev_ready    = s3c2440_dev_ready;
+	s3c_nand->ecc.mode	   = NAND_ECC_SOFT;
 	
 	/* 3、硬件相关的设置:根据NAND FLASH手册，设置时间参数 */
 	/* 使能NAND FLASH控制器的时钟 */
