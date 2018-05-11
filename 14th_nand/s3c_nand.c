@@ -77,12 +77,12 @@ static void s3c2440_select_chip(struct mtd_info *mtd, int chipnr)
 	if (chipnr == -1)
 	{
 		/* 取消选中:NFCONT[1] = 0 */
-		s3c_nand_regs->nfcont &=~ (1 << 1);
+		s3c_nand_regs->nfcont |= (1 << 1);
 	}
 	else
 	{
 		/* 选中: NFCONT[1] = 1 */
-		s3c_nand_regs->nfcont |= (1 << 1);
+		s3c_nand_regs->nfcont &=~ (1 << 1);
 	}
 }
 
