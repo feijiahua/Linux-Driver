@@ -49,7 +49,7 @@ static struct nand_chip *s3c_nand;
 static struct mtd_info *s3c_mtd;
 static struct s3c_nand_regs *s3c_nand_regs;
 
-static struct mtd_partition s3c_nand_part[] = {
+static struct mtd_partition s3c_nand_parts[] = {
 	[0] = {
         .name   = "bootloader",
         .size   = 0x00040000,
@@ -102,7 +102,7 @@ static void s3c2440_cmd_ctrl(struct mtd_info *mtd, int dat, unsigned int ctrl)
 
 static int s3c2440_dev_ready(struct mtd_info *mtd)
 {
-	return s3c_nand_regs->nfstat & (1 << 0);
+	return (s3c_nand_regs->nfstat & (1<<0));
 }
 
 static int s3c_nand_init(void)
@@ -120,8 +120,8 @@ static int s3c_nand_init(void)
 	 */
 	s3c_nand->select_chip  = s3c2440_select_chip; 
 	s3c_nand->cmd_ctrl	   = s3c2440_cmd_ctrl;
-	s3c_nand->IO_ADDR_R    = s3c_nand_regs->nfdata;
-	s3c_nand->IO_ADDR_W    = s3c_nand_regs->nfdata;
+	s3c_nand->IO_ADDR_R    = &s3c_nand_regs->nfdata;
+	s3c_nand->IO_ADDR_W    = &s3c_nand_regs->nfdata;
 	s3c_nand->dev_ready    = s3c2440_dev_ready;
 	s3c_nand->ecc.mode	   = NAND_ECC_SOFT;
 	
@@ -144,7 +144,7 @@ static int s3c_nand_init(void)
 	 * BIT-1设为1，取消片选
 	 * BIT-0设为1，使能NAND FLASH控制器
 	 */
-	s3c_nand_regs->nfcont = (3 << 0);
+	s3c_nand_regs->nfcont = (1<<1) | (1<<0);
 	
 	/* 4、使用: nand_scan 
 	 *			add_mtd_partitions
@@ -153,9 +153,11 @@ static int s3c_nand_init(void)
 	s3c_mtd->owner = THIS_MODULE;
 	s3c_mtd->priv = s3c_nand;
 	
-	nand_scan(s3c_mtd, 1);/* 识别NAND FLASH，构造mtd_info */
-	add_mtd_partitions(s3c_mtd, s3c_nand_part, 4);
-	/* 整个flash当做一个分区用add_mtd_device()函数 */
+	nand_scan(s3c_mtd, 1);  /* 识别NAND FLASH, 构造mtd_info */
+	
+	/* 5. add_mtd_partitions */
+	add_mtd_partitions(s3c_mtd, s3c_nand_parts, 4);
+	
 	//add_mtd_device(s3c_mtd);
 	
 	return 0;
