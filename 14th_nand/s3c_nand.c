@@ -131,7 +131,8 @@ static int s3c_nand_init(void)
 	clk_enable(clk);
 	
 	/* HCLK = 100MHZ 
-	 * TACLS:发出CLE/CLE之后，多长时间才发出nWE信号，从NAND手册可知CLE/ALE与nWE信号可以同时发出，所以TACLS=0
+	 * TACLS:发出CLE/CLE之后，多长时间才发出nWE信号，从NAND手册可知CLE/ALE与nWE信号可以同时发出，
+	 * 所以TACLS=0
      * TWRPH0:nWE的脉冲宽度，TWRPH0=1
      * TWRPH1:nWE信号变为高电平后，多长时间后CLE/ALE才能变为高电平，TWRPH0=0
 	 */
