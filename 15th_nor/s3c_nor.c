@@ -2,7 +2,7 @@
  * ²Î¿¼drivers\mtd\maps\physmap.c
  */
 
- #include <linux/module.h>
+#include <linux/module.h>
 #include <linux/types.h>
 #include <linux/kernel.h>
 #include <linux/init.h>
@@ -17,6 +17,19 @@
 
 static struct map_info *s3c_nor_map;
 static struct mtd_info *s3c_nor_mtd;
+
+static struct mtd_partition s3c_nor_part[] = {
+	[0] = {
+        .name   = "bootloader_nor",
+        .size   = 0x00040000,
+		.offset	= 0,
+	},
+	[1] = {
+        .name   = "root_nor",
+        .offset = MTDPART_OFS_APPEND,
+        .size   = MTDPART_SIZ_FULL,
+	}
+};
 
 static int s3c_nor_init(void)
 {
@@ -49,12 +62,14 @@ static int s3c_nor_init(void)
 	}
 	
 	/* 4.add_mtd_partitions */
+	add_mtd_partitions(s3c_nor_mtd, s3c_nor_part, 2);
 
 	return 0;
 }
 
 static void s3c_nor_exit(void)
 {
+	del_mtd_partitions(s3c_nor_mtd);
 	iounmap(s3c_nor_map->virt);
 	kfree(s3c_nor_map);
 }
